@@ -1,0 +1,5 @@
+webform_submission_control.settings:
+  title: Webform submission control
+  description: Webform submission control settings.
+  route_name: webform_submission_control.settings
+  parent: system.admin_config

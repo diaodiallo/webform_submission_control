@@ -1,0 +1,12 @@
+name: Webform Submission Control
+type: module
+description: Limit webform submission to entity.
+package: 'Webform'
+core_version_requirement: ^8 || ^9 || ^10
+dependencies:
+  - webform:webform
+
+# Information added by Drupal.org packaging script on 2022-11-22
+version: '1.0.0-alpha2'
+project: 'webform_submission_control'
+datestamp: 1669121445

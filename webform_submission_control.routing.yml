@@ -1,0 +1,7 @@
+webform_submission_control.settings:
+  path: 'admin/config/webform-submission-control-settings'
+  defaults:
+    _form: 'Drupal\webform_submission_control\Form\WebformSubmissionControlSettingsForm'
+    _title: 'Webform submission control'
+  requirements:
+    _permission: 'administer site configuration'

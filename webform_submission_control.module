@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Implements().
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\webform\WebformSubmissionForm;
+
+/**
+ * Implements hook_help().
+ */
+function webform_submission_control_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the webform_submission_control module.
+    case 'help.page.webform_submission_control':
+      $output = '';
+      $output .= '<h2>' . t('About') . '</h2>';
+      $output .= '<p>' . t('The webform submission control module limit selected webform submission to entities. It helps site builders to
+      control which form can be submitted directly and which require an entity') . '</p>';
+      $output .= '<p>';
+      $output .= t('Visit the <a href=":project_link">Project page</a> on Drupal.org for more information.', [
+        ':project_link' => 'https://www.drupal.org/project/webform_submission_control',
+      ]);
+      $output .= '</p>';
+
+      return $output;
+  }
+}
+
+/**
+ * Webform submission control form alter.
+ */
+function webform_submission_control_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Check if the entity type of the form is webform.
+  $object = $form_state->getFormObject();
+  if ($object instanceof WebformSubmissionForm) {
+    // Check the route name.
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    $route_elements = explode('.', $route_name);
+    if (in_array('webform', $route_elements)) {
+      $config = \Drupal::service('config.factory')
+        ->getEditable('webform_submission_control.settings');
+      // Check if the webform has restrictions.
+      $webform_ids = $config->get('webform') ? array_keys($config->get('webform')) : [];
+      $wid = $object->getWebform()->id();
+      if (in_array($wid, $webform_ids)) {
+        $roles = $config->get('role') ? array_keys($config->get('role')) : [];
+        $current_user_roles = \Drupal::currentUser()->getRoles();
+        // Check if the current user has the required role to be excluded.
+        $diff = array_diff($roles, $current_user_roles);
+        if (count($diff) == count($roles)) {
+          $form['actions']['submit']['#access'] = FALSE;
+          // Delete webform warning message in this case.
+          $message = Drupal::messenger();
+          $message->deleteAll();
+          $message->addWarning(t($config->get('message')));
+        }
+      }
+    }
+  }
+}
